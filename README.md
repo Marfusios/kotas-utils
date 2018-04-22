@@ -1,4 +1,4 @@
-# Kotas utilities [![Build Status](https://travis-ci.org/Marfusios/bitfinex-client-websocket.svg?branch=master)](https://travis-ci.org/Marfusios/bitfinex-client-websocket) [![NuGet version](https://badge.fury.io/nu/Bitfinex.Client.Websocket.svg)](https://badge.fury.io/nu/Bitfinex.Client.Websocket)
+# Kotas utilities [![Build Status](https://travis-ci.org/Marfusios/kotas-utils.svg?branch=master)](https://travis-ci.org/Marfusios/kotas-utils) [![NuGet version](https://badge.fury.io/nu/Kotas.Utils.Common.svg)](https://badge.fury.io/nu/Kotas.Utils.Common)
 
 These libraries contain reusable building components for the .NET Standard 2.0 applications. 
 
