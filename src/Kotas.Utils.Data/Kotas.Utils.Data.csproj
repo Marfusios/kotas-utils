@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Kotas.Utils.Data</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Mariusz Kotas</Authors>
+    <Description>Kotas utilities - a base library for data access</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>Initial</PackageReleaseNotes>
+    <Copyright>Copyright 2018 Mariusz Kotas. All rights reserved.</Copyright>
+    <PackageTags>Kotas utilities data</PackageTags>
+    <PackageLicenseUrl>https://github.com/Marfusios/kotas-utils/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/Marfusios/kotas-utils</PackageProjectUrl>
+    <PackageIconUrl>http://mkotas.cz/dist/images/logo.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/Marfusios/kotas-utils</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kotas.Utils.Common\Kotas.Utils.Common.csproj" />
+  </ItemGroup>
+
+</Project>
