@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Kotas.Utils.AspNet</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Mariusz Kotas</Authors>
+    <Description>Kotas utilities - a library with utilities for ASP.NET Core applications</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>Initial</PackageReleaseNotes>
+    <Copyright>Copyright 2018 Mariusz Kotas. All rights reserved.</Copyright>
+    <PackageTags>Kotas utilities asp.net core</PackageTags>
+    <PackageLicenseUrl>https://github.com/Marfusios/kotas-utils/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/Marfusios/kotas-utils</PackageProjectUrl>
+    <PackageIconUrl>http://mkotas.cz/dist/images/logo.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/Marfusios/kotas-utils</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kotas.Utils.Common\Kotas.Utils.Common.csproj" />
+  </ItemGroup>
+
+</Project>

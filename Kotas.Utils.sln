@@ -13,13 +13,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kotas.Utils.Common", "src\K
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kotas.Utils.Common.Tests", "test\Kotas.Utils.Common.Tests\Kotas.Utils.Common.Tests.csproj", "{8D9138AE-DFA4-4C19-AD30-085A9BCBE939}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kotas.Utils.Data", "src\Kotas.Utils.Data\Kotas.Utils.Data.csproj", "{6C511744-F165-4296-AFCB-3A766A8CD7DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kotas.Utils.Data", "src\Kotas.Utils.Data\Kotas.Utils.Data.csproj", "{6C511744-F165-4296-AFCB-3A766A8CD7DA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kotas.Utils.Data.Native", "src\Kotas.Utils.Data.Native\Kotas.Utils.Data.Native.csproj", "{D5CBF798-81C3-4F2D-9114-F15FF8DF0704}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kotas.Utils.Data.Native", "src\Kotas.Utils.Data.Native\Kotas.Utils.Data.Native.csproj", "{D5CBF798-81C3-4F2D-9114-F15FF8DF0704}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kotas.Utils.Data.Native.Tests", "test\Kotas.Utils.Data.Native.Tests\Kotas.Utils.Data.Native.Tests.csproj", "{38DC4E36-3364-48A6-BC25-3DB3BBC4A2AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kotas.Utils.Data.Native.Tests", "test\Kotas.Utils.Data.Native.Tests\Kotas.Utils.Data.Native.Tests.csproj", "{38DC4E36-3364-48A6-BC25-3DB3BBC4A2AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kotas.Utils.Data.EntityFramework", "src\Kotas.Utils.Data.EntityFramework\Kotas.Utils.Data.EntityFramework.csproj", "{C9E62088-31A4-40C2-AAE1-330A6C2F6DCF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kotas.Utils.Data.EntityFramework", "src\Kotas.Utils.Data.EntityFramework\Kotas.Utils.Data.EntityFramework.csproj", "{C9E62088-31A4-40C2-AAE1-330A6C2F6DCF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kotas.Utils.AspNet", "src\Kotas.Utils.AspNet\Kotas.Utils.AspNet.csproj", "{118E52BA-5009-413E-9C16-52108436601B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{C9E62088-31A4-40C2-AAE1-330A6C2F6DCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9E62088-31A4-40C2-AAE1-330A6C2F6DCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9E62088-31A4-40C2-AAE1-330A6C2F6DCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{118E52BA-5009-413E-9C16-52108436601B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{118E52BA-5009-413E-9C16-52108436601B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{118E52BA-5009-413E-9C16-52108436601B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{118E52BA-5009-413E-9C16-52108436601B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,6 +68,7 @@ Global
 		{D5CBF798-81C3-4F2D-9114-F15FF8DF0704} = {360B18BD-653A-4824-9261-C88167EEBAD2}
 		{38DC4E36-3364-48A6-BC25-3DB3BBC4A2AB} = {0544BC01-B569-4729-86B0-5AFDBF7EED46}
 		{C9E62088-31A4-40C2-AAE1-330A6C2F6DCF} = {360B18BD-653A-4824-9261-C88167EEBAD2}
+		{118E52BA-5009-413E-9C16-52108436601B} = {360B18BD-653A-4824-9261-C88167EEBAD2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EE3E0B94-CF20-4C22-B50B-E720E8DFD675}

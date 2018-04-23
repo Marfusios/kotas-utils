@@ -19,7 +19,7 @@ namespace Kotas.Utils.Data.EntityFramework
             _defaultConnectionString = connectionString;
         }
 
-        public static void AddEntityFrameworkDataAccess<TContext>(IServiceCollection services, IConfigurationRoot configuration) 
+        public static void AddEntityFrameworkDataAccess<TContext>(this IServiceCollection services, IConfigurationRoot configuration) 
             where TContext: DbContext
         {
             Validations.ValidateInput(services, nameof(IServiceCollection));
@@ -30,7 +30,7 @@ namespace Kotas.Utils.Data.EntityFramework
                 (connectionString, type) => app.GetService<TContext>()));
         }
 
-        public static void AddEntityFrameworkDataAccessWithDatabase<TContext>(IServiceCollection services, IConfigurationRoot configuration, 
+        public static void AddEntityFrameworkDataAccessWithDatabase<TContext>(this IServiceCollection services, IConfigurationRoot configuration, 
             DatabaseType database, string connectionString) where TContext: DbContext
         {
             Validations.ValidateInput(services, nameof(IServiceCollection));

@@ -22,7 +22,7 @@ namespace Kotas.Utils.Data.Native
             _defaultConnectionString = connectionString;
         }
 
-        public static void AddNativeDataAccess(IServiceCollection services, IConfigurationRoot configuration)
+        public static void AddNativeDataAccess(this IServiceCollection services, IConfigurationRoot configuration)
         {
             Validations.ValidateInput(services, nameof(IServiceCollection));
             Validations.ValidateInput(configuration, nameof(IConfigurationRoot));
