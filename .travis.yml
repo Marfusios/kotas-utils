@@ -10,8 +10,8 @@ script:
 - dotnet test test/Kotas.Utils.Common.Tests -c Release
 deploy:
   provider: script
-  skip_cleanup: false
+  skip_cleanup: true
   script:
-    - dotnet pack /p:PackageVersion=1.0.$TRAVIS_BUILD_NUMBER -c Release && cd src && dotnet nuget push **/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
+    - dotnet pack /p:PackageVersion=1.0.$TRAVIS_BUILD_NUMBER -c Release && cd src && dotnet nuget push **/*.1.0.$TRAVIS_BUILD_NUMBER.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
   on:
     branch: master
