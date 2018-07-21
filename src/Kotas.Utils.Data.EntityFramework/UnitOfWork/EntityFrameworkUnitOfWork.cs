@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Kotas.Utils.Data.Native.UnitOfWork;
 using Kotas.Utils.Data.UnitOfWork;
 using Kotas.Utils.Data.UnitOfWork.Provider;
 using Microsoft.EntityFrameworkCore;
