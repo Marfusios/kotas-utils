@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Kotas.Utils.AspNet.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -12,12 +11,12 @@ namespace Kotas.Utils.AspNet.Middlewares.ExceptionToResponse
     public class ExceptionToResponseMapper
     {
         private readonly ILogger<ExceptionToResponseMapper> _logger;
-        private readonly Dictionary<Type, Func<Exception, ObjectResult>> _mappings;
+        private readonly ExceptionMapping _mapping;
 
-        public ExceptionToResponseMapper(ILogger<ExceptionToResponseMapper> logger)
+        public ExceptionToResponseMapper(ILogger<ExceptionToResponseMapper> logger, ExceptionMapping mapping)
         {
             _logger = logger;
-            _mappings = InitMappings();
+            _mapping = mapping;
         }
 
         public ObjectResult Map(Exception exception)
@@ -26,22 +25,15 @@ namespace Kotas.Utils.AspNet.Middlewares.ExceptionToResponse
                 return CreateEmptyResult();
 
             LogException(exception);
-            if (_mappings.TryGetValue(exception.GetType(), out Func<Exception, ObjectResult> mappingFunc))
-            {
-                return mappingFunc(exception);
-            }
-
-            return UnhandledMap(exception);
+            if (exception is AggregateException aggregateException)
+                return CreateObjectResult(aggregateException);
+            var statusCode = _mapping.MapExceptionToStatusCode(exception);
+            return CreateObjectResult(exception, statusCode);
         }
 
         private ObjectResult CreateEmptyResult()
         {
             return CreateObjectResult("Executed exception mapper middleware but no exception provided. Fix it!", HttpStatusCode.InternalServerError);
-        }
-
-        protected virtual ObjectResult UnhandledMap(Exception exception)
-        {
-            return CreateObjectResult(exception, HttpStatusCode.InternalServerError);
         }
 
         private static ObjectResult CreateObjectResult(Exception exception, HttpStatusCode statusCode)
@@ -94,10 +86,11 @@ namespace Kotas.Utils.AspNet.Middlewares.ExceptionToResponse
 
         private static ObjectResult CreateLastResult(string message, HttpStatusCode statusCode)
         {
-            return new ObjectResult(message)
+            var result = new ObjectResult(message)
             {
                 StatusCode = (int)statusCode
             };
+            return result;
         }
 
         private static string GenerateExceptionMsg(Exception exception)
@@ -133,57 +126,6 @@ namespace Kotas.Utils.AspNet.Middlewares.ExceptionToResponse
             var intStatusCode = Map(firstException).StatusCode;
 
             return (HttpStatusCode)Enum.Parse(typeof(HttpStatusCode), intStatusCode.ToString());
-        }
-
-        private Dictionary<Type, Func<Exception, ObjectResult>> InitMappings()
-        {
-            return new Dictionary<Type, Func<Exception, ObjectResult>>
-            {
-                {
-                    typeof(AggregateException),
-                    exception => CreateObjectResult(exception as AggregateException)
-                },
-                {
-                    typeof(NotFoundException),
-                    exception => CreateObjectResult(exception, HttpStatusCode.NotFound)
-                },
-                {
-                    typeof(UnauthorizedException),
-                    exception => CreateObjectResult(exception, HttpStatusCode.Unauthorized)
-                },
-                {
-                    typeof(ForbiddenException),
-                    exception => CreateObjectResult(exception, HttpStatusCode.Forbidden)
-                },
-                {
-                    typeof(BadInputException),
-                    exception => CreateObjectResult(exception, HttpStatusCode.BadRequest)
-                },
-                {
-                    typeof(ArgumentException),
-                    exception => CreateObjectResult(exception, HttpStatusCode.BadRequest)
-                },
-                {
-                    typeof(ArgumentNullException),
-                    exception => CreateObjectResult(exception, HttpStatusCode.BadRequest)
-                },
-                {
-                    typeof(ArgumentOutOfRangeException),
-                    exception => CreateObjectResult(exception, HttpStatusCode.BadRequest)
-                },
-                {
-                    typeof(InvalidOperationException),
-                    exception => CreateObjectResult(exception, HttpStatusCode.NotAcceptable)
-                },
-                {
-                    typeof(NotImplementedException),
-                    exception => CreateObjectResult(exception, HttpStatusCode.NotImplemented)
-                },
-                {
-                    typeof(ConflictException),
-                    exception => CreateObjectResult(exception, HttpStatusCode.Conflict)
-                },
-            };
         }
 
         private void LogException(Exception exception)

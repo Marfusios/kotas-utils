@@ -36,6 +36,7 @@ namespace Kotas.Utils.AspNet.Middlewares.ExceptionToResponse
                 var mappedObjectResult = _exceptionsMapper.Map(ex);
                 context.Response.StatusCode = mappedObjectResult?.StatusCode
                                               ?? (int)HttpStatusCode.InternalServerError;
+                context.Response.ContentType = "application/json";
                 await context.Response.WriteAsync(mappedObjectResult?.Value?.ToString());
             }
         }
