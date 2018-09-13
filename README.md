@@ -18,6 +18,7 @@ These libraries contain reusable building components for the .NET Standard 2.0 a
     * the unit of work pattern
 * **Kotas.Utils.Data.Native** - a library for native data access
     * implementation of the unit of work pattern
+    * pure `System.Data`
     * base classes: `NativeQuery` and `NativeStore`
     * SQL server via `System.Data.SqlClient`
     * PostgreSQL via `Npgsql`
@@ -26,10 +27,28 @@ These libraries contain reusable building components for the .NET Standard 2.0 a
     * base classes: `EntityFrameworkQuery` and `EntityFrameworkStore`
     * SQL server via `Microsoft.EntityFrameworkCore.SqlServer`
     * PostgreSQL via `Npgsql.EntityFrameworkCore.PostgreSQL`
+* **Kotas.Utils.Asp.Net** - a common library for ASP.NET Core applications
+    * middlewares
+        * exception to status code - maps throwed unhandled exceptions to HTTP status code
+    * exceptions
+        * BadInputException
+        * ForbiddenException
+        * ConflictException
+        * UnathorizedException
+        * NotFoundException
+* **Kotas.Utils.RabbitMQ** - a library for RabbitMQ broker
+    * statically typed approach to pub-sub pattern
+    * supports two types of subscriptions
+        * shared - only one instance of the subscriber is handling the message
+        * per consumer - every instance of the subscriber is handling the message
+    * message consist of payload and wrapper
+    * wrapper contains timestamp and correlation id
+    * whole message is serialized to JSON
+    * inspired by Prism (library for WPF)
+* **Kotas.Utils.RabbitMQ.AspNet** - ASP.NET Core integration
+    * provides integration methods (called from Startup class)
+        * `AddRabbitMQ()`, `UseRabbitMQ()`
+        * `AddMessageHandler<>()`, `UseMessageHandler<,>()`
 
-### Usage
-
-```csharp
 
 
-```

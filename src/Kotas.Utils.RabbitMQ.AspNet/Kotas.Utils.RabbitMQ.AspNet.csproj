@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Kotas.Utils.AspNet\Kotas.Utils.AspNet.csproj" />
+    <ProjectReference Include="..\Kotas.Utils.RabbitMQ\Kotas.Utils.RabbitMQ.csproj" />
+  </ItemGroup>
+
+</Project>
