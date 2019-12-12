@@ -8,7 +8,10 @@ namespace Kotas.Utils.RabbitMQ.Handlers
     public abstract class MessageHandler<TPayload> : IMessageHandler
         where TPayload: IPayload
     {
-        public Task Handle(object data)
+        /// <summary>
+        /// Handle subscribed message
+        /// </summary>
+        public Task<HandleResult> Handle(object data)
         {
             var wrapper = data as IPayloadWrapper<TPayload>;
             if(wrapper == null)
@@ -17,7 +20,10 @@ namespace Kotas.Utils.RabbitMQ.Handlers
             return Handle(wrapper);
         }
 
-        public abstract Task Handle(IPayloadWrapper<TPayload> wrapper);
+        /// <summary>
+        /// Handle subscribed message
+        /// </summary>
+        public abstract Task<HandleResult> Handle(IPayloadWrapper<TPayload> wrapper);
 
         private static Type GetInnerGeneric(object data)
         {

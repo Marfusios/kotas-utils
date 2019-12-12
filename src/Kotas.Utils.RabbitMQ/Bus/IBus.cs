@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Kotas.Utils.RabbitMQ.Handlers;
 using Kotas.Utils.RabbitMQ.Infrastructure;
 
 namespace Kotas.Utils.RabbitMQ.Bus
@@ -23,10 +24,22 @@ namespace Kotas.Utils.RabbitMQ.Bus
 
         /// <summary>
         /// Subscribe fallback. Use _bus.Message<MyDesiredMessage>().Subscribe(...) when possible. 
-        /// Handler should return true, otherwise the message will be requeued
+        /// Handler should return result, in case of exception the message will be re-queued
         /// </summary>
-        void Subscribe<TPayload>(IMessage message, Func<IPayloadWrapper<TPayload>, Task> handler, 
-            SubscriptionType type = SubscriptionType.SharedBetweenConsumers)
+        void Subscribe<TPayload>(IMessage message, Func<IPayloadWrapper<TPayload>, Task<HandleResult>> handler, 
+            SubscriptionType type = SubscriptionType.SharedBetweenConsumers, SubscriptionConfig configuration = null)
+            where TPayload : IPayload;
+
+        /// <summary>
+        /// Get first message from the target queue
+        /// </summary>
+        IPayloadWrapper<TPayload> Get<TPayload>(IMessage message, SubscriptionType type = SubscriptionType.SharedBetweenConsumers) 
+            where TPayload : IPayload;
+
+        /// <summary>
+        /// Get all messages from the target queue
+        /// </summary>
+        IPayloadWrapper<TPayload>[] GetAll<TPayload>(IMessage message, SubscriptionType type = SubscriptionType.SharedBetweenConsumers)
             where TPayload : IPayload;
 
         /// <summary>

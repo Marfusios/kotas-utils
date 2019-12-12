@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Kotas.Utils.RabbitMQ.Bus;
+using Kotas.Utils.RabbitMQ.Handlers;
 
 namespace Kotas.Utils.RabbitMQ.Infrastructure
 {
@@ -8,7 +9,8 @@ namespace Kotas.Utils.RabbitMQ.Infrastructure
     {
         string RoutingKey { get; }
 
-        void Subscribe(Func<object, Task> handler, 
-            SubscriptionType type = SubscriptionType.SharedBetweenConsumers);
+        void Subscribe(Func<object, Task<HandleResult>> handler, 
+            SubscriptionType type = SubscriptionType.SharedBetweenConsumers,
+            SubscriptionConfig configuration = null);
     }
 }

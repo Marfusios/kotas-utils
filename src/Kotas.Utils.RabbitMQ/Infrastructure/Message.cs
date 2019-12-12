@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Kotas.Utils.RabbitMQ.Bus;
+using Kotas.Utils.RabbitMQ.Handlers;
 
 namespace Kotas.Utils.RabbitMQ.Infrastructure
 {
@@ -26,18 +27,34 @@ namespace Kotas.Utils.RabbitMQ.Infrastructure
 
         /// <summary>
         /// Subscribe to the message. 
-        /// Handler should return true, otherwise the message will be requeued.
+        /// Handler should return result, in case of exception the message will be re-queued
         /// </summary>
-        public void Subscribe(Func<IPayloadWrapper<TPayload>, Task> handler, 
-            SubscriptionType type = SubscriptionType.SharedBetweenConsumers)
+        public void Subscribe(Func<IPayloadWrapper<TPayload>, Task<HandleResult>> handler, 
+            SubscriptionType type = SubscriptionType.SharedBetweenConsumers, SubscriptionConfig configuration = null)
         {
-            _bus.Subscribe(this, handler, type);
+            _bus.Subscribe(this, handler, type, configuration);
         }
 
-        public void Subscribe(Func<object, Task> handler, 
-            SubscriptionType type = SubscriptionType.SharedBetweenConsumers)
+        public void Subscribe(Func<object, Task<HandleResult>> handler, 
+            SubscriptionType type = SubscriptionType.SharedBetweenConsumers, SubscriptionConfig configuration = null)
         {
-            _bus.Subscribe<TPayload>(this, handler, type);
+            _bus.Subscribe<TPayload>(this, handler, type, configuration);
+        }
+
+        /// <summary>
+        /// Get first message from the target queue
+        /// </summary>
+        public IPayloadWrapper<TPayload> Get(SubscriptionType type = SubscriptionType.SharedBetweenConsumers)
+        {
+            return _bus.Get<TPayload>(this, type);
+        }
+
+        /// <summary>
+        /// Get all messages from the target queue
+        /// </summary>
+        public IPayloadWrapper<TPayload>[] GetAll( SubscriptionType type = SubscriptionType.SharedBetweenConsumers)
+        {
+            return _bus.GetAll<TPayload>(this, type);
         }
 
         protected string GenerateRoutingKey(params string[] parts)

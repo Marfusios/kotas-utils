@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29424.173
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{360B18BD-653A-4824-9261-C88167EEBAD2}"
 EndProject
@@ -35,7 +35,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kotas.Utils.RabbitMQ.Sample
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kotas.Utils.RabbitMQ.Sample.Client2", "test_integration\Kotas.Utils.RabbitMQ.Sample.Client2\Kotas.Utils.RabbitMQ.Sample.Client2.csproj", "{F58EAABB-9C7F-4216-B16D-7B144E6885F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kotas.Utils.RabbitMQ.AspNet", "src\Kotas.Utils.RabbitMQ.AspNet\Kotas.Utils.RabbitMQ.AspNet.csproj", "{B98C7162-A3B6-48C4-91B7-90B2B662F1FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kotas.Utils.RabbitMQ.AspNet", "src\Kotas.Utils.RabbitMQ.AspNet\Kotas.Utils.RabbitMQ.AspNet.csproj", "{B98C7162-A3B6-48C4-91B7-90B2B662F1FD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2FE8D1C9-6311-4C15-B89B-59311CCDACED}"
+	ProjectSection(SolutionItems) = preProject
+		.travis.yml = .travis.yml
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

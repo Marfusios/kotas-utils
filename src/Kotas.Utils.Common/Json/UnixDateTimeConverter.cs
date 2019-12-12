@@ -10,8 +10,8 @@ namespace Kotas.Utils.Common.Json
     {
         public override void WriteJson(JsonWriter writer, object value, Newtonsoft.Json.JsonSerializer serializer)
         {
-            var substracted = ((DateTime)value).Subtract(DateTimeUtils.UnixBase);
-            writer.WriteRawValue(substracted.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
+            var subtracted = ((DateTime)value).Subtract(DateTimeUtils.UnixBase);
+            writer.WriteRawValue(subtracted.TotalMilliseconds.ToString(CultureInfo.InvariantCulture));
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, Newtonsoft.Json.JsonSerializer serializer)

@@ -4,6 +4,9 @@ namespace Kotas.Utils.RabbitMQ.Handlers
 {
     public interface IMessageHandler
     {
-        Task Handle(object data);
+        /// <summary>
+        /// Handle subscribed message
+        /// </summary>
+        Task<HandleResult> Handle(object data);
     }
 }

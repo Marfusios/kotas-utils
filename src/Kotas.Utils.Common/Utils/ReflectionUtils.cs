@@ -10,7 +10,7 @@ namespace Kotas.Utils.Common.Utils
         public static Assembly[] GetAllAssembliesWithoutEntry()
         {
             var referencedAssemblies =Assembly
-                .GetEntryAssembly()
+                .GetEntryAssembly()?
                 .GetReferencedAssemblies()
                 .Select(Assembly.Load)
                 .ToArray();
@@ -21,12 +21,12 @@ namespace Kotas.Utils.Common.Utils
         public static Assembly[] GetAllAssemblies()
         {
             var referencedAssemblies =Assembly
-                .GetEntryAssembly()
+                .GetEntryAssembly()?
                 .GetReferencedAssemblies()
                 .Select(Assembly.Load)
                 .ToArray();
 
-            return referencedAssemblies.Union(new[] {Assembly.GetEntryAssembly()}).ToArray();
+            return referencedAssemblies?.Union(new[] {Assembly.GetEntryAssembly()}).ToArray();
         }
 
         public static IEnumerable<object> CreateInstancesImplementingInterface(Type interfaceType, Assembly[] assemblies)
@@ -40,7 +40,7 @@ namespace Kotas.Utils.Common.Utils
                 {
                     if (ti.ImplementedInterfaces.Contains(interfaceType))
                     {
-                        yield return assembly.CreateInstance(ti.FullName);
+                        yield return assembly.CreateInstance(ti.FullName ?? string.Empty);
                     }  
                 }
             }
@@ -58,7 +58,7 @@ namespace Kotas.Utils.Common.Utils
                 {
                     if (ti.ImplementedInterfaces.Contains(interfaceType))
                     {
-                        yield return (TInterface)assembly.CreateInstance(ti.FullName);
+                        yield return (TInterface)assembly.CreateInstance(ti.FullName ?? string.Empty);
                     }  
                 }
             }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -8,7 +8,7 @@
     <Description>Kotas utilities - a library with utilities for ASP.NET Core applications</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>Initial</PackageReleaseNotes>
-    <Copyright>Copyright 2018 Mariusz Kotas. All rights reserved.</Copyright>
+    <Copyright>Copyright 2020 Mariusz Kotas. All rights reserved.</Copyright>
     <PackageTags>Kotas utilities asp.net core</PackageTags>
     <PackageLicenseUrl>https://github.com/Marfusios/kotas-utils/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Marfusios/kotas-utils</PackageProjectUrl>

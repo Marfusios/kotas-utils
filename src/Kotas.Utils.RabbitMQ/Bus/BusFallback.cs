@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Kotas.Utils.RabbitMQ.Handlers;
 using Kotas.Utils.RabbitMQ.Infrastructure;
 using Microsoft.Extensions.Logging;
 
@@ -33,10 +34,22 @@ namespace Kotas.Utils.RabbitMQ.Bus
             LogMessage($"Publishing message '{message?.GetType().Name}'");
         }
 
-        public void Subscribe<TPayload>(IMessage message, Func<IPayloadWrapper<TPayload>, Task> handler, 
-            SubscriptionType type = SubscriptionType.SharedBetweenConsumers) where TPayload : IPayload
+        public void Subscribe<TPayload>(IMessage message, Func<IPayloadWrapper<TPayload>, Task<HandleResult>> handler, 
+            SubscriptionType type = SubscriptionType.SharedBetweenConsumers, SubscriptionConfig configuration = null) where TPayload : IPayload
         {
             LogMessage($"Subscribing to message '{message?.GetType().Name}', type: {type}");
+        }
+
+        public IPayloadWrapper<TPayload> Get<TPayload>(IMessage message, 
+            SubscriptionType type = SubscriptionType.SharedBetweenConsumers) where TPayload : IPayload
+        {
+            return null;
+        }
+
+        public IPayloadWrapper<TPayload>[] GetAll<TPayload>(IMessage message, 
+            SubscriptionType type = SubscriptionType.SharedBetweenConsumers) where TPayload : IPayload
+        {
+            return new IPayloadWrapper<TPayload>[0];
         }
 
         public Func<string> CorrelationIdFactory { get; set; }

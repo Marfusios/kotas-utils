@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Kotas.Utils.RabbitMQ.Config;
@@ -14,7 +15,7 @@ namespace Kotas.Utils.RabbitMQ.Bus
 {
     public class RabbitBus : IBus
     {
-        private static readonly string INSTANCE_IDENTIFICATOR = Convert.ToBase64String(Guid.NewGuid().ToByteArray()).ToLower();
+        private static readonly string INSTANCE_IDENTIFICATION = Convert.ToBase64String(Guid.NewGuid().ToByteArray()).ToLower();
 
         private bool _isInitialized = false;
         private BusConfig _config;
@@ -104,36 +105,59 @@ namespace Kotas.Utils.RabbitMQ.Bus
                 body: body);
         }
 
-        public void Subscribe<TPayload>(IMessage message, Func<IPayloadWrapper<TPayload>, Task> handler, 
+        public void Subscribe<TPayload>(IMessage message, Func<IPayloadWrapper<TPayload>, Task<HandleResult>> handler, 
+            SubscriptionType type = SubscriptionType.SharedBetweenConsumers, SubscriptionConfig configuration = null)
+            where TPayload : IPayload
+        {
+            var qName = InitializeQueue<TPayload>(message, type, configuration, out var channel, out _);
+
+            var concurrencyLimit = configuration?.ConcurrencyLimit ?? _config.ConcurrencyLimit;
+
+            var consumer = CreateConsumer(channel, handler);
+            channel.BasicQos(0, (ushort)concurrencyLimit, false);
+            channel.BasicConsume(queue: qName, autoAck: false, consumer: consumer);
+        }
+
+        public IPayloadWrapper<TPayload> Get<TPayload>(IMessage message,
             SubscriptionType type = SubscriptionType.SharedBetweenConsumers)
             where TPayload : IPayload
         {
-            if(!_isInitialized)
-                throw new InvalidOperationException("Not initialized yet, " +
-                                                    "don't forget to call 'Init()' method at least once");
+            var qName = InitializeQueue<TPayload>(message, type, null, out var channel, out _);
 
-            var consumerName = _consumerName;
-            var autoDelete = false;
+            var retrieved = channel.BasicGet(qName, true);
+            if (retrieved == null)
+                return null;
 
-            if (type == SubscriptionType.PerConsumer)
-            {
-                autoDelete = true;
-                consumerName = $"{consumerName}.{INSTANCE_IDENTIFICATOR}";
-            }
+            if (TryDeserializeReceived(retrieved.Body, out PayloadWrapper<TPayload> deserialized))
+                return deserialized;
 
-            var qName = RabbitConsts.GenerateQueueName(
-                RabbitConsts.QueuePrefix, 
-                RabbitConsts.QueueConsumerPrefix, 
-                consumerName, 
-                message.RoutingKey);
-            var channel = GetChannel();
-
-            channel.QueueDeclare(queue: qName, durable: true, exclusive: false, autoDelete: autoDelete, arguments: null);
-            channel.QueueBind(queue: qName, exchange: RabbitConsts.ExchangeName, routingKey: message.RoutingKey);
-
-            var consumer = CreateConsumer(handler);
-            channel.BasicConsume(queue: qName, autoAck: false, consumer: consumer);
+            LogBadFormat(retrieved);
+            return null;
         }
+
+        public IPayloadWrapper<TPayload>[] GetAll<TPayload>(IMessage message,
+            SubscriptionType type = SubscriptionType.SharedBetweenConsumers)
+            where TPayload : IPayload
+        {
+            var result = new List<IPayloadWrapper<TPayload>>();
+            var qName = InitializeQueue<TPayload>(message, type, null, out var channel, out _);
+
+            while (true)
+            {
+                var retrieved = channel.BasicGet(qName, true);
+                if (retrieved == null)
+                    return result.ToArray();
+
+                if (TryDeserializeReceived(retrieved.Body, out PayloadWrapper<TPayload> deserialized))
+                {
+                    result.Add(deserialized);
+                    continue;
+                }
+
+                LogBadFormat(retrieved);
+            }
+        }
+
 
         ~RabbitBus()
         {
@@ -158,6 +182,42 @@ namespace Kotas.Utils.RabbitMQ.Bus
             _connection?.Dispose();
         }
 
+
+        private string InitializeQueue<TPayload>(IMessage message, SubscriptionType type, SubscriptionConfig configuration,
+            out IModel channel, out QueueDeclareOk declaration) where TPayload : IPayload
+        {
+            if (!_isInitialized)
+                throw new InvalidOperationException("Not initialized yet, " +
+                                                    "don't forget to call 'Init()' method at least once");
+
+            var consumerName = _consumerName;
+            var autoDelete = false;
+
+            if (type == SubscriptionType.PerConsumer)
+            {
+                autoDelete = true;
+                consumerName = $"{consumerName}.{INSTANCE_IDENTIFICATION}";
+            }
+
+            var qName = RabbitConsts.GenerateQueueName(
+                RabbitConsts.QueuePrefix,
+                RabbitConsts.QueueConsumerPrefix,
+                consumerName,
+                message.RoutingKey);
+            channel = GetChannel();
+
+            var arguments = configuration?.QueueArguments;
+            var createDeadLetter = configuration?.CreateDeadLetterQueue ?? _config.CreateDeadLetterQueue ?? false;
+            if (createDeadLetter)
+            {
+                arguments = ConfigureDeadLetter(channel, qName, arguments);
+            }
+
+            declaration = channel.QueueDeclare(queue: qName, durable: true, exclusive: false, autoDelete: autoDelete, arguments: arguments);
+            channel.QueueBind(queue: qName, exchange: RabbitConsts.ExchangeName, routingKey: message.RoutingKey);
+            return qName;
+        }
+
         private IPayloadWrapper<TPayload> CreateWrapper<TPayload>(TPayload payload) where TPayload : IPayload
         {
             var wrapper = new PayloadWrapper<TPayload>(
@@ -177,41 +237,73 @@ namespace Kotas.Utils.RabbitMQ.Bus
                 durable: true);
         }
 
-        private IBasicConsumer CreateConsumer<TPayload>(Func<IPayloadWrapper<TPayload>, Task> handler) where TPayload : IPayload
+        private IBasicConsumer CreateConsumer<TPayload>(IModel channel, Func<IPayloadWrapper<TPayload>, Task<HandleResult>> handler) where TPayload : IPayload
         {
-            var consumer = new EventingBasicConsumer(GetChannel());
+            var consumer = new EventingBasicConsumer(channel);
             consumer.Received += async (model, args) =>
             {
-                if (!TryDeserializeReceived(args, out PayloadWrapper<TPayload> deserialized))
-                {
-                    LogBadFormat(args);
-                    RemoveFromQueue(args);
-                    return;
-                }
-
                 try
                 {
-                    await handler(deserialized);
-                    RemoveFromQueue(args);
+                    await HandleReceivedMessage(handler, args);
                 }
-                catch (PayloadMismatchException ex)
+                catch (Exception e)
                 {
-                    RemoveFromQueue(args);
-                    LogPayloadMismatch(ex);
-                    throw; // Fail fast and notify developer
-                }
-                catch (Exception ex)
-                {
-                    ReturnToQueue(args);
-                    LogHandleException(ex);
+                    LogErrorMessage($"[MESSAGE HANDLING] Unexpected error while handling message, error: {e.Message}", e);
                 }
             };
             return consumer;
         }
 
-        private void RemoveFromQueue(BasicDeliverEventArgs args)
+        private async Task HandleReceivedMessage<TPayload>(Func<IPayloadWrapper<TPayload>, Task<HandleResult>> handler,
+                    BasicDeliverEventArgs args) where TPayload : IPayload
+        {
+            if (!TryDeserializeReceived(args.Body, out PayloadWrapper<TPayload> deserialized))
+            {
+                LogBadFormat(args);
+                RemoveFromQueueAsReject(args);
+                return;
+            }
+
+            try
+            {
+                var result = await handler(deserialized);
+
+                switch (result.Type)
+                {
+                    case HandleType.Requeue:
+                        ReturnToQueue(args);
+                        break;
+                    case HandleType.Reject:
+                        RemoveFromQueueAsReject(args);
+                        break;
+                    case HandleType.Ok:
+                    default:
+                        RemoveFromQueueAsOk(args);
+                        break;
+                }
+
+            }
+            catch (PayloadMismatchException ex)
+            {
+                RemoveFromQueueAsOk(args);
+                LogPayloadMismatch(ex);
+                throw; // Fail fast and notify developer (implementation mistake)
+            }
+            catch (Exception ex)
+            {
+                ReturnToQueue(args);
+                LogHandleException(ex);
+            }
+        }
+
+        private void RemoveFromQueueAsOk(BasicDeliverEventArgs args)
         {
             GetChannel().BasicAck(args.DeliveryTag, false);
+        }
+
+        private void RemoveFromQueueAsReject(BasicDeliverEventArgs args)
+        {
+            GetChannel().BasicNack(args.DeliveryTag, false, false);
         }
 
         private void ReturnToQueue(BasicDeliverEventArgs args)
@@ -219,11 +311,10 @@ namespace Kotas.Utils.RabbitMQ.Bus
             GetChannel().BasicNack(args.DeliveryTag, false, true);
         }
 
-        private bool TryDeserializeReceived<TPayload>(BasicDeliverEventArgs args, out PayloadWrapper<TPayload> result) where TPayload : IPayload
+        private bool TryDeserializeReceived<TPayload>(byte[] body, out PayloadWrapper<TPayload> result) where TPayload : IPayload
         {
             try
             {
-                var body = args.Body;
                 result = MessageSerializer.Deserialize<PayloadWrapper<TPayload>>(body);
 
                 return result != null;
@@ -236,6 +327,24 @@ namespace Kotas.Utils.RabbitMQ.Bus
             }
         }
 
+        private IDictionary<string, object> ConfigureDeadLetter(IModel channel, string qName, IDictionary<string, object> arguments)
+        {
+            var argSafe = arguments ?? new Dictionary<string, object>();
+            var qNameDead = $"{qName}.dead";
+
+            // declare dead letter queue
+            channel.QueueDeclare(queue: qNameDead, durable: true, exclusive: false,
+                autoDelete: false);
+
+            // connect with base queue via arguments
+            if (!argSafe.ContainsKey("x-dead-letter-exchange"))
+                argSafe["x-dead-letter-exchange"] = "";
+
+            if (!argSafe.ContainsKey("x-dead-letter-routing-key"))
+                argSafe["x-dead-letter-routing-key"] = qNameDead;
+
+            return argSafe;
+        }
         private IConnection GetConnection()
         {
             if (_connection != null && _connection.IsOpen)
@@ -264,10 +373,25 @@ namespace Kotas.Utils.RabbitMQ.Bus
                 Debug.WriteLine(message);
         }
 
+        private void LogErrorMessage(string msg, Exception ex)
+        {
+            var message = $"[KoBus] {msg}";
+            if (_logger != null)
+                _logger.LogError(ex, message);
+            else
+                Debug.WriteLine(message);
+        }
+
         private void LogBadFormat(BasicDeliverEventArgs args)
         {
             LogMessage(
                 $"[MESSAGE HANDLING] Received message is in bad format. Removing message from the queue. Exchange: {args.Exchange} | Routing: {args.RoutingKey} | Consumer: {args.ConsumerTag}");
+        }
+
+        private void LogBadFormat(BasicGetResult args)
+        {
+            LogMessage(
+                $"[MESSAGE HANDLING] Retrieved message is in bad format. Removing message from the queue. Exchange: {args.Exchange} | Routing: {args.RoutingKey}");
         }
 
         private void LogDeserializingMessage(Exception ex)
